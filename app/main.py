@@ -31,6 +31,9 @@ def add_me(number_1: int, number_2: int):
 
 # Let's develop a new one:
 
+@app.get("/mod/{number_1}/{number_2}")
+def mod_me(number_1: int, number_2: int):
+    return {"modulus": number_1 % number_2}
 
 ## Parameters
 # Introduce parameter data types and defaults from the Optional library
