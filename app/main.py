@@ -3,6 +3,9 @@
 from fastapi import FastAPI
 from typing import Optional
 from pydantic import BaseModel
+import os
+import MySQLdb
+from fastapi.staticfiles import StaticFiles
 # import boto3
 
 app = FastAPI()
@@ -10,6 +13,12 @@ app = FastAPI()
 # The URL for this API has a /docs endpoint that lets you see and test
 # your various endpoints/methods.
 
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+
+DBHOST = os.environ.get('DBHOST')
+DBUSER = os.environ.get('DBUSER')
+DBPASS = os.environ.get('DBPASS')
+DB = "lct4am"  # replace with your UVA computing ID / database name
 
 # The zone apex is the 'default' page for a URL
 # This will return a simple hello world via GET method.
@@ -81,6 +90,23 @@ def delete_item(item_id: int, item: Item):
 def patch_item(item_id: int, item: Item):
     return {"action": "patch", "item_id": item_id}
 
+@app.get("/albums")
+def get_albums():
+    db = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASS, db=DB)
+    c = db.cursor(MySQLdb.cursors.DictCursor)
+    c.execute("""SELECT * FROM albums ORDER BY name""")
+    results = c.fetchall()
+    db.close()
+    return results
+
+@app.get("/albums/{id}")
+def get_one_album(id):
+    db = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASS, db=DB)
+    c = db.cursor(MySQLdb.cursors.DictCursor)
+    c.execute("SELECT * FROM albums WHERE id=" + id)
+    results = c.fetchall()
+    db.close()
+    return results
 
 # Use another library to make an external API request.
 # An API within an API!
