@@ -56,6 +56,23 @@ def read_items(item_id: int, q: str = None, s: str = None):
     # - another api (external)
     return {"item_id": item_id, "q": q, "s": s}
 
+@app.get("/albums")
+def get_albums():
+    db = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASS, db=DB)
+    c = db.cursor(MySQLdb.cursors.DictCursor)
+    c.execute("""SELECT * FROM albums ORDER BY name""")
+    results = c.fetchall()
+    db.close()
+    return results
+
+@app.get("/albums/{id}")
+def get_one_album(id):
+    db = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASS, db=DB)
+    c = db.cursor(MySQLdb.cursors.DictCursor)
+    c.execute("SELECT * FROM albums WHERE id=" + id)
+    results = c.fetchall()
+    db.close()
+    return results
 
 ## Data Modeling
 # Model data you are expecting.
@@ -89,24 +106,6 @@ def delete_item(item_id: int, item: Item):
 @app.patch("/items/{item_id}")
 def patch_item(item_id: int, item: Item):
     return {"action": "patch", "item_id": item_id}
-
-@app.get("/albums")
-def get_albums():
-    db = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASS, db=DB)
-    c = db.cursor(MySQLdb.cursors.DictCursor)
-    c.execute("""SELECT * FROM albums ORDER BY name""")
-    results = c.fetchall()
-    db.close()
-    return results
-
-@app.get("/albums/{id}")
-def get_one_album(id):
-    db = MySQLdb.connect(host=DBHOST, user=DBUSER, passwd=DBPASS, db=DB)
-    c = db.cursor(MySQLdb.cursors.DictCursor)
-    c.execute("SELECT * FROM albums WHERE id=" + id)
-    results = c.fetchall()
-    db.close()
-    return results
 
 # Use another library to make an external API request.
 # An API within an API!
